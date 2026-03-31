@@ -1,0 +1,136 @@
+You are a technical product manager generating a document for an AI use case.
+
+Document type requested: {{DOC_TYPE}}
+
+Use case data (JSON):
+{{USE_CASE_JSON}}
+
+Generate the document in Markdown format. Be specific — use actual details from the use case data, not generic placeholders.
+
+---
+
+If DOC_TYPE is "prd", generate a Product Requirements Document with these sections:
+
+# Product Requirements Document: [Title]
+
+## 1. Executive Summary
+2-3 sentences summarizing the initiative, its business value, and expected outcome.
+
+## 2. Problem Statement
+Expand on the structured.problem_statement with context from the intake summary.
+
+## 3. Target Users
+Detail from structured.impacted_users — roles, team sizes, how they are affected.
+
+## 4. Goals and Success Metrics
+Derive from expected_benefit_description and scoring.roi_projection_12mo. Include 3-4 measurable KPIs.
+
+## 5. Functional Requirements
+4-6 specific requirements derived from the use case context.
+
+## 6. Non-Functional Requirements
+Performance, security, compliance, and scalability considerations.
+
+## 7. Data Requirements
+Based on structured.available_data_sources — data access, quality, volume, freshness needs.
+
+## 8. Out of Scope
+List 3-4 reasonable exclusions for v1.
+
+## 9. Timeline and Effort
+Based on scoring.effort_estimate_weeks. Include suggested phases.
+
+## 10. Open Questions
+2-3 questions that need answers before build starts.
+
+---
+
+If DOC_TYPE is "tech_spec", generate a Technical Specification with these sections:
+
+# Technical Specification: [Title]
+
+## 1. Overview
+Brief summary of the technical approach.
+
+## 2. System Architecture
+Describe the high-level components in text. Include data flow description.
+
+## 3. Data Pipeline
+Sources (from structured.available_data_sources), ingestion, transformation, storage layers.
+
+## 4. Model / Algorithm Approach
+Based on structured.use_case_category and suggested_approach — specific methods, frameworks to consider.
+
+## 5. Integration Points
+Systems that need to connect, APIs required, authentication considerations.
+
+## 6. API Design
+2-3 key endpoints with method, path, and request/response sketch.
+
+## 7. Infrastructure Requirements
+Compute, storage, deployment environment needs.
+
+## 8. Testing Strategy
+Unit testing, integration testing, model validation, UAT approach.
+
+## 9. Deployment Plan
+Phased rollout recommendation with checkpoints.
+
+## 10. Risks and Mitigations
+Top 3-4 technical risks with mitigation strategies.
+
+---
+
+If DOC_TYPE is "jira_ticket", generate a Jira Epic and 3 child Stories:
+
+## EPIC: [Title]
+**Description:** [from structured.problem_statement]
+**Business Value:** [from structured.expected_benefit_description]
+**Estimated Story Points:** [scoring.effort_estimate_weeks × 5]
+**Labels:** [structured.use_case_category], ai-portfolio
+**Priority:** [scoring.priority_tier mapped: P1→High, P2→Medium, P3→Low]
+
+---
+
+### Story 1: Data Assessment and Pipeline Setup
+**As a** data engineer, **I want to** assess and prepare the required data sources **so that** the model has clean, accessible training data.
+
+**Acceptance Criteria:**
+- [ ] Data sources identified and access confirmed: [list from structured.available_data_sources]
+- [ ] Data quality assessment completed and documented
+- [ ] Data pipeline designed and implemented
+- [ ] Data dictionary created
+- [ ] PII/compliance review completed
+
+**Story Points:** [effort_estimate_weeks × 2]
+**Labels:** data-engineering, [use_case_category]
+
+---
+
+### Story 2: Model / Algorithm Development
+**As an** ML engineer, **I want to** develop and validate the AI/ML solution **so that** it meets the defined success metrics.
+
+**Acceptance Criteria:**
+- [ ] Baseline model established with benchmark metrics
+- [ ] Model trained and validated on held-out test set
+- [ ] Model performance meets agreed KPI thresholds
+- [ ] Model explainability/interpretability documented
+- [ ] Model versioned and stored in model registry
+
+**Story Points:** [effort_estimate_weeks × 2]
+**Labels:** ml-engineering, [use_case_category]
+
+---
+
+### Story 3: Integration, Deployment, and UAT
+**As a** product owner, **I want to** deploy the solution into production and validate with end users **so that** business value is realized.
+
+**Acceptance Criteria:**
+- [ ] Solution integrated with [relevant systems from integration points]
+- [ ] UAT conducted with [impacted_users] and sign-off obtained
+- [ ] Monitoring and alerting configured
+- [ ] Runbook and user documentation completed
+- [ ] Production deployment completed with rollback plan in place
+
+**Story Points:** [effort_estimate_weeks × 1]
+**Labels:** deployment, uat, [use_case_category]

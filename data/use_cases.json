@@ -1,0 +1,345 @@
+[
+  {
+    "id": "uc_20260331_165456_8f33",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-03-31T16:54:56.227685+00:00",
+    "updated_at": "2026-03-31T16:54:56.227725+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "use_case_category": "other",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_type": "",
+      "expected_benefit_description": "",
+      "complexity_estimate": "medium",
+      "suggested_approach": "",
+      "strategic_alignment": [],
+      "structuring_completed_at": null
+    },
+    "scoring": {
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "composite_score": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD",
+      "priority_tier": "P3",
+      "scoring_version": "mock_v1",
+      "scored_at": null
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260331_171706_1cc8",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-03-31T17:17:06.108534+00:00",
+    "updated_at": "2026-03-31T17:17:06.108544+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "use_case_category": "other",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_type": "",
+      "expected_benefit_description": "",
+      "complexity_estimate": "medium",
+      "suggested_approach": "",
+      "strategic_alignment": [],
+      "structuring_completed_at": null
+    },
+    "scoring": {
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "composite_score": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD",
+      "priority_tier": "P3",
+      "scoring_version": "mock_v1",
+      "scored_at": null
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260331_171726_c5d2",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-03-31T17:17:26.995823+00:00",
+    "updated_at": "2026-03-31T17:17:26.995846+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "use_case_category": "other",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_type": "",
+      "expected_benefit_description": "",
+      "complexity_estimate": "medium",
+      "suggested_approach": "",
+      "strategic_alignment": [],
+      "structuring_completed_at": null
+    },
+    "scoring": {
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "composite_score": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD",
+      "priority_tier": "P3",
+      "scoring_version": "mock_v1",
+      "scored_at": null
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260331_171907_5e1e",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-03-31T17:19:07.956485+00:00",
+    "updated_at": "2026-03-31T17:19:07.956494+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "use_case_category": "other",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_type": "",
+      "expected_benefit_description": "",
+      "complexity_estimate": "medium",
+      "suggested_approach": "",
+      "strategic_alignment": [],
+      "structuring_completed_at": null
+    },
+    "scoring": {
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "composite_score": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD",
+      "priority_tier": "P3",
+      "scoring_version": "mock_v1",
+      "scored_at": null
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260331_171910_64dd",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-03-31T17:19:10.857107+00:00",
+    "updated_at": "2026-03-31T17:19:10.857117+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "use_case_category": "other",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_type": "",
+      "expected_benefit_description": "",
+      "complexity_estimate": "medium",
+      "suggested_approach": "",
+      "strategic_alignment": [],
+      "structuring_completed_at": null
+    },
+    "scoring": {
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "composite_score": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD",
+      "priority_tier": "P3",
+      "scoring_version": "mock_v1",
+      "scored_at": null
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260331_172052_a1fb",
+    "title": "Customer Service Representatives (CSRs) currently spend sign",
+    "status": "scored",
+    "department": "",
+    "created_at": "2026-03-31T17:20:52.309416+00:00",
+    "updated_at": "2026-03-31T17:29:59.717692+00:00",
+    "intake": {
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Hi, I have an AI use case idea I'd like to document."
+        },
+        {
+          "role": "assistant",
+          "content": "Welcome! I'm here to help you document your AI use case idea. Let's start with understanding the core business problem you're looking to address. Can you describe it for me, and perhaps share any specific details or metrics if you have them?"
+        },
+        {
+          "role": "user",
+          "content": "CSR Drafting"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks for sharing \"CSR Drafting.\" That's a good start. To make sure I understand, could you tell me more about what specific problem CSRs (Customer Service Representatives) face when drafting, and how that impacts the business? Are there any metrics around this, like how long it takes or error rates?"
+        },
+        {
+          "role": "user",
+          "content": "\nHave the first draft of the CSR drafted using AI. Initially it could do the shell of the CSR, using the protocol, IB and other information to populate the 'general' items in the CSR. Then it could potential progress to using the TFLs to populate the full CSR. "
+        },
+        {
+          "role": "assistant",
+          "content": "I see, so the core problem is the manual effort and time CSRs spend drafting these documents, and you envision AI automating the initial \"shell\" using existing protocols and information. Later, it could even populate the full document using TFLs (Tables, Figures, Listings).\n\nThat makes sense. My next question is, who is impacted by this problem? Which teams, roles, or how many users would this affect?"
+        },
+        {
+          "role": "user",
+          "content": "It will benefit at least 3 teams for around 50 people. Saving a lot of FTEs and money"
+        },
+        {
+          "role": "assistant",
+          "content": "That's clear \u2013 this would benefit at least 3 teams, impacting around 50 people, with the potential for significant FTE and cost savings.\n\nNow, let's think about the data. What data is available or would be needed for the AI to draft these CSRs? Are we talking about specific systems, databases, or types of files it would need to access?"
+        },
+        {
+          "role": "user",
+          "content": "We have some sample CSR (Clinical Study Report) files as reference/template with good quality"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks, so you have existing, high-quality sample Clinical Study Report (CSR) files that could serve as references or templates. That's a great starting point for training.\n\nBeyond those sample files, what other data sources or systems would the AI need to access to pull in the \"protocol, IB (Investigator's Brochure), and other information\" you mentioned earlier to populate the general items in the CSR, or later, the TFLs?"
+        }
+      ],
+      "raw_summary": "The core business problem identified is the significant manual effort and time spent by staff on drafting Clinical Study Reports (CSRs). The proposed AI solution aims to automate this process, beginning with generating the initial \"shell\" of the CSR by incorporating existing protocols, Investigator's Brochures (IB), and other general information. The long-term vision is for the AI to progress to populating the full CSR using Tables, Figures, and Listings (TFLs).\n\nThis initiative is projected to benefit at least three teams, impacting approximately 50 people within the organization. Regarding available data, there are existing high-quality sample Clinical Study Report files that can be utilized as references and templates for training the AI. Additional data sources, such as protocols, IBs, and TFLs, would be required for the AI to fully populate the reports.\n\nThe expected benefits are substantial, including significant savings in Full-Time Equivalents (FTEs) and overall operational costs, by streamlining and accelerating the CSR drafting process."
+    },
+    "structured": {
+      "problem_statement": "Customer Service Representatives (CSRs) currently spend significant manual effort and time drafting Clinical Study Reports (CSRs), leading to inefficiencies and higher operational costs.",
+      "use_case_category": "nlp",
+      "impacted_users": "At least 3 teams, impacting around 50 people.",
+      "available_data_sources": [
+        "sample CSR (Clinical Study Report) files",
+        "protocol",
+        "IB (Investigator's Brochure)",
+        "TFLs (Tables, Figures, Listings)"
+      ],
+      "expected_benefit_type": "cost_reduction",
+      "expected_benefit_description": "Potential for significant FTE and cost savings across at least 3 teams, impacting around 50 people.",
+      "complexity_estimate": "high",
+      "suggested_approach": "Leverage a text generation AI model, potentially a fine-tuned large language model, to draft initial CSR shells using existing protocols, Investigator's Brochures, and other general information. The model could then progress to populating full CSRs by incorporating TFLs and learning from high-quality sample CSR files.",
+      "strategic_alignment": [
+        "operational_efficiency",
+        "cost_reduction"
+      ],
+      "structuring_completed_at": "2026-03-31T17:28:28.020919+00:00"
+    },
+    "scoring": {
+      "business_impact": 63,
+      "feasibility": 44,
+      "data_readiness": 89,
+      "risk_compliance": 76,
+      "composite_score": 64,
+      "effort_estimate_weeks": 21,
+      "roi_projection_12mo": 8001,
+      "roi_currency": "USD",
+      "priority_tier": "P2",
+      "scoring_version": "mock_v1",
+      "scored_at": "2026-03-31T17:29:03.564088+00:00"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": true,
+      "structuring_complete": true,
+      "scoring_complete": true,
+      "handoff_complete": false,
+      "tags": []
+    }
+  }
+]
