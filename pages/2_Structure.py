@@ -11,11 +11,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.data_store import load_all, upsert, get_by_id
-from core.models import StructuredData, USE_CASE_CATEGORIES, BENEFIT_TYPES, COMPLEXITY_OPTIONS, STRATEGIC_ALIGNMENT_OPTIONS
+from core.models import (
+    StructuredData,
+    SPOKE_ALIGNMENTS, SOLUTION_CATEGORIES, GROUPINGS, IMPACT_OPTIONS, COMPLEXITY_OPTIONS,
+)
 from core import llm_client
 
 
-# ── Session state defaults ─────────────────────────────────────────────────────
 st.session_state.setdefault("active_uc_id", None)
 
 
@@ -23,12 +25,12 @@ def _sidebar():
     with st.sidebar:
         st.title("🤖 AI Portfolio")
         st.divider()
-        st.page_link("app.py", label="Home", icon="🏠")
-        st.page_link("pages/1_Intake.py", label="1. Idea Intake", icon="💬")
-        st.page_link("pages/2_Structure.py", label="2. Structure", icon="📋")
-        st.page_link("pages/3_Scoring.py", label="3. Scoring", icon="📊")
-        st.page_link("pages/4_Portfolio.py", label="4. Portfolio", icon="🗂️")
-        st.page_link("pages/5_Handoff.py", label="5. Handoff", icon="📄")
+        st.page_link("app.py",              label="Home",          icon="🏠")
+        st.page_link("pages/1_Intake.py",   label="1. Idea Intake",icon="💬")
+        st.page_link("pages/2_Structure.py",label="2. Structure",  icon="📋")
+        st.page_link("pages/3_Scoring.py",  label="3. Scoring",    icon="📊")
+        st.page_link("pages/4_Portfolio.py",label="4. Portfolio",  icon="🗂️")
+        st.page_link("pages/5_Handoff.py",  label="5. Handoff",    icon="📄")
         st.divider()
 
         use_cases = load_all()
@@ -36,13 +38,12 @@ def _sidebar():
         if ready:
             options = {uc.id: uc.title for uc in ready}
             st.caption("Switch use case")
+            current = st.session_state["active_uc_id"]
+            idx = list(options.keys()).index(current) if current in options else 0
             selected = st.selectbox(
-                "Select",
-                list(options.keys()),
+                "Select", list(options.keys()),
                 format_func=lambda x: options[x],
-                label_visibility="collapsed",
-                index=list(options.keys()).index(st.session_state["active_uc_id"])
-                if st.session_state["active_uc_id"] in options else 0,
+                label_visibility="collapsed", index=idx,
             )
             if st.button("Load", use_container_width=True):
                 st.session_state["active_uc_id"] = selected
@@ -54,30 +55,39 @@ def _run_structuring(uc_id: str) -> StructuredData:
     prompt_template = llm_client.load_prompt("structuring.txt")
     raw = llm_client.structure_use_case(uc.intake.chat_history, prompt_template)
 
-    structured = uc.structured
-    structured.problem_statement = raw.get("problem_statement", "")
-    structured.use_case_category = raw.get("use_case_category", "other")
-    structured.impacted_users = raw.get("impacted_users", "")
-    structured.available_data_sources = raw.get("available_data_sources", [])
-    structured.expected_benefit_type = raw.get("expected_benefit_type", "other")
-    structured.expected_benefit_description = raw.get("expected_benefit_description", "")
-    structured.complexity_estimate = raw.get("complexity_estimate", "medium")
-    structured.suggested_approach = raw.get("suggested_approach", "")
-    structured.strategic_alignment = raw.get("strategic_alignment", [])
-    structured.structuring_completed_at = datetime.now(timezone.utc).isoformat()
+    s = uc.structured
+    s.problem_statement           = raw.get("problem_statement", "")
+    s.impacted_users              = raw.get("impacted_users", "")
+    s.available_data_sources      = raw.get("available_data_sources", [])
+    s.expected_benefit_description = raw.get("expected_benefit_description", "")
+    s.suggested_approach          = raw.get("suggested_approach", "")
+    s.spoke_alignment             = raw.get("spoke_alignment", "")
+    s.solution_category           = raw.get("solution_category", "")
+    s.grouping                    = raw.get("grouping", "")
+    s.business_impact_level       = raw.get("business_impact_level", "medium").lower()
+    s.foundational_impact_level   = raw.get("foundational_impact_level", "medium").lower()
+    s.technical_complexity        = raw.get("technical_complexity",
+                                            raw.get("complexity_estimate", "medium")).lower()
+    s.data_availability_level     = raw.get("data_availability_level", "medium").lower()
+    s.structuring_completed_at    = datetime.now(timezone.utc).isoformat()
 
-    # Update use case title from problem statement
-    if structured.problem_statement and uc.title in ("New Use Case", ""):
-        uc.title = structured.problem_statement[:60].strip()
+    if s.problem_statement and uc.title in ("New Use Case", ""):
+        uc.title = s.problem_statement[:60].strip()
 
-    uc.structured = structured
+    uc.structured = s
     uc.meta.structuring_complete = True
     uc.status = "structured"
     upsert(uc)
-    return structured
+    return s
 
 
-# ── Main layout ────────────────────────────────────────────────────────────────
+def _impact_index(val: str) -> int:
+    """Map low/medium/high → selectbox index (case-insensitive)."""
+    opts = [o.lower() for o in IMPACT_OPTIONS]
+    return opts.index(val.lower()) if val.lower() in opts else 1
+
+
+# ── Main ───────────────────────────────────────────────────────────────────────
 _sidebar()
 
 st.title("📋 Step 2: AI Structuring")
@@ -102,32 +112,37 @@ if not uc.meta.intake_complete:
         st.switch_page("pages/1_Intake.py")
     st.stop()
 
-# Auto-run structuring on first visit
+# Auto-run structuring on first visit (intake-sourced records)
 if not uc.meta.structuring_complete or not uc.structured.structuring_completed_at:
-    with st.spinner("AI is structuring your use case…"):
-        structured = _run_structuring(uc_id)
-    uc = get_by_id(uc_id)
-    st.success("Structuring complete! Review and edit the fields below.")
+    if uc.intake.chat_history:
+        with st.spinner("AI is structuring your use case…"):
+            _run_structuring(uc_id)
+        uc = get_by_id(uc_id)
+        st.success("Structuring complete! Review and edit the fields below.")
+    else:
+        # Pre-loaded record — mark structuring as done so we skip the spinner
+        uc.meta.structuring_complete = True
+        upsert(uc)
 
-structured = uc.structured
+s = uc.structured
 
-# Layout: summary left, form right
+# ── Layout: summary left / form right ─────────────────────────────────────────
 left_col, right_col = st.columns([2, 3])
 
 with left_col:
     st.subheader("Intake Summary")
     if uc.intake.raw_summary:
         st.markdown(uc.intake.raw_summary)
+    elif s.problem_statement:
+        st.markdown(s.problem_statement)
     else:
-        st.caption("No summary available. Raw chat history below.")
-        for msg in uc.intake.chat_history[-6:]:
-            role_label = "You" if msg["role"] == "user" else "AI"
-            st.caption(f"**{role_label}:** {msg['content'][:200]}")
+        st.caption("No summary available.")
 
     st.divider()
     col_a, col_b = st.columns(2)
     with col_a:
-        if st.button("🔄 Re-run AI Structuring", use_container_width=True):
+        if st.button("🔄 Re-run AI Structuring", use_container_width=True,
+                     disabled=not bool(uc.intake.chat_history)):
             with st.spinner("Re-structuring…"):
                 _run_structuring(uc_id)
             st.rerun()
@@ -139,69 +154,113 @@ with right_col:
     st.subheader("Structured Use Case")
 
     with st.form("structuring_form"):
-        title = st.text_input("Use Case Title", value=uc.title)
-        department = st.text_input("Department / Business Unit", value=uc.department)
+
+        # ── Identity ─────────────────────────────────────────────────────────
+        st.markdown("**Identity**")
+        c1, c2 = st.columns(2)
+        title      = c1.text_input("Use Case Title",          value=uc.title)
+        department = c2.text_input("R&D Function / Department", value=uc.department)
 
         problem_statement = st.text_area(
-            "Problem Statement", value=structured.problem_statement, height=100
+            "Problem Statement", value=s.problem_statement, height=90,
+        )
+        impacted_users = st.text_input("Impacted Users / Teams", value=s.impacted_users)
+
+        st.divider()
+
+        # ── Classification ───────────────────────────────────────────────────
+        st.markdown("**Classification**")
+        c3, c4, c5 = st.columns(3)
+
+        spoke_idx = SPOKE_ALIGNMENTS.index(s.spoke_alignment) \
+            if s.spoke_alignment in SPOKE_ALIGNMENTS else 0
+        spoke_alignment = c3.selectbox("Spoke Alignment", SPOKE_ALIGNMENTS, index=spoke_idx)
+
+        sol_idx = SOLUTION_CATEGORIES.index(s.solution_category) \
+            if s.solution_category in SOLUTION_CATEGORIES else 0
+        solution_category = c4.selectbox("Solution Category", SOLUTION_CATEGORIES, index=sol_idx)
+
+        grp_idx = GROUPINGS.index(s.grouping) if s.grouping in GROUPINGS else 0
+        grouping = c5.selectbox("Grouping", GROUPINGS, index=grp_idx)
+
+        st.divider()
+
+        # ── Scoring inputs (4 dimensions) ────────────────────────────────────
+        st.markdown("**Scoring Inputs**")
+        st.caption(
+            "These four dimensions feed directly into Net Value and Net Effort scores. "
+            "Business Impact is weighted 2×."
         )
 
-        col1, col2 = st.columns(2)
-        with col1:
-            category_idx = USE_CASE_CATEGORIES.index(structured.use_case_category) \
-                if structured.use_case_category in USE_CASE_CATEGORIES else 0
-            use_case_category = st.selectbox(
-                "Use Case Category", USE_CASE_CATEGORIES, index=category_idx
-            )
-            benefit_idx = BENEFIT_TYPES.index(structured.expected_benefit_type) \
-                if structured.expected_benefit_type in BENEFIT_TYPES else 3
-            expected_benefit_type = st.selectbox(
-                "Benefit Type", BENEFIT_TYPES, index=benefit_idx
-            )
-        with col2:
-            complexity_idx = COMPLEXITY_OPTIONS.index(structured.complexity_estimate) \
-                if structured.complexity_estimate in COMPLEXITY_OPTIONS else 1
-            complexity_estimate = st.selectbox(
-                "Complexity", COMPLEXITY_OPTIONS, index=complexity_idx
-            )
-            strategic_alignment = st.multiselect(
-                "Strategic Alignment",
-                STRATEGIC_ALIGNMENT_OPTIONS,
-                default=[s for s in structured.strategic_alignment if s in STRATEGIC_ALIGNMENT_OPTIONS],
-            )
+        sc1, sc2, sc3, sc4 = st.columns(4)
 
-        impacted_users = st.text_input("Impacted Users / Teams", value=structured.impacted_users)
+        business_impact_level = sc1.selectbox(
+            "Business Impact",
+            IMPACT_OPTIONS,
+            index=_impact_index(s.business_impact_level),
+            help="Direct impact on cycle time, portfolio growth, or operational efficiency.",
+        )
+        foundational_impact_level = sc2.selectbox(
+            "Foundational Impact",
+            IMPACT_OPTIONS,
+            index=_impact_index(s.foundational_impact_level),
+            help="Cross-functional or enterprise-wide enablement value.",
+        )
+        technical_complexity = sc3.selectbox(
+            "Technical Complexity",
+            COMPLEXITY_OPTIONS,
+            index=_impact_index(s.technical_complexity),
+            help="Lower complexity = higher effort score (easier to execute).",
+        )
+        data_availability_level = sc4.selectbox(
+            "Data Availability",
+            IMPACT_OPTIONS,
+            index=_impact_index(s.data_availability_level),
+            help="How readily available and accessible the required data is.",
+        )
+
+        st.divider()
+
+        # ── Supporting detail ─────────────────────────────────────────────────
+        st.markdown("**Supporting Detail**")
 
         data_sources_str = st.text_area(
             "Available Data Sources (one per line)",
-            value="\n".join(structured.available_data_sources),
+            value="\n".join(s.available_data_sources),
+            height=70,
+        )
+        expected_benefit_description = st.text_area(
+            "Expected Benefit / Justification",
+            value=s.expected_benefit_description,
+            height=70,
+        )
+        suggested_approach = st.text_area(
+            "Suggested Approach",
+            value=s.suggested_approach,
             height=80,
         )
 
-        expected_benefit_description = st.text_area(
-            "Expected Benefit Description", value=structured.expected_benefit_description, height=80
+        submitted = st.form_submit_button(
+            "💾 Save & Proceed to Scoring →", type="primary",
         )
-
-        suggested_approach = st.text_area(
-            "Suggested AI Approach", value=structured.suggested_approach, height=100
-        )
-
-        submitted = st.form_submit_button("💾 Save & Proceed to Scoring →", type="primary")
 
     if submitted:
-        uc.title = title
+        uc.title      = title
         uc.department = department
-        uc.structured.problem_statement = problem_statement
-        uc.structured.use_case_category = use_case_category
-        uc.structured.impacted_users = impacted_users
-        uc.structured.available_data_sources = [
-            s.strip() for s in data_sources_str.splitlines() if s.strip()
+        uc.structured.problem_statement          = problem_statement
+        uc.structured.impacted_users             = impacted_users
+        uc.structured.spoke_alignment            = spoke_alignment
+        uc.structured.solution_category          = solution_category
+        uc.structured.grouping                   = grouping
+        uc.structured.business_impact_level      = business_impact_level.lower()
+        uc.structured.foundational_impact_level  = foundational_impact_level.lower()
+        uc.structured.technical_complexity       = technical_complexity.lower()
+        uc.structured.data_availability_level    = data_availability_level.lower()
+        uc.structured.available_data_sources     = [
+            ln.strip() for ln in data_sources_str.splitlines() if ln.strip()
         ]
-        uc.structured.expected_benefit_type = expected_benefit_type
         uc.structured.expected_benefit_description = expected_benefit_description
-        uc.structured.complexity_estimate = complexity_estimate
-        uc.structured.suggested_approach = suggested_approach
-        uc.structured.strategic_alignment = strategic_alignment
+        uc.structured.suggested_approach           = suggested_approach
         uc.meta.structuring_complete = True
         uc.status = "structured"
         upsert(uc)

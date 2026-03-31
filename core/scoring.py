@@ -1,100 +1,80 @@
-import hashlib
-from datetime import datetime, timezone
+"""
+Scoring engine — implements the real CSL R&D AI prioritisation framework.
 
+Net Value Score  = (BI × 2) + (FI × 1)        range: 3–9
+Net Effort Score = TC_score + DA_score          range: 2–6
+
+Scoring legend  (Low=1, Medium=2, High=3; Technical Complexity is INVERTED)
+  Business Impact     Low=1  Medium=2  High=3
+  Foundational Impact Low=1  Medium=2  High=3
+  Technical Complexity Low=3  Medium=2  High=1   ← lower complexity is BETTER
+  Data Availability   Low=1  Medium=2  High=3
+
+Thresholds (from Assumptions sheet):
+  Net Value ≥ 6  → "High";  < 6 → "Low"
+  Net Effort ≥ 5 → "Low" (easier);  < 5 → "High" (harder)
+
+2×2 Category matrix:
+  High Value + Low Effort  → Quick Win
+  High Value + High Effort → Strategic Initiative
+  Low Value  + Low Effort  → Backlog
+  Low Value  + High Effort → Deprioritized
+"""
+
+from datetime import datetime, timezone
 from core.models import StructuredData, ScoringData
 
-CATEGORY_FEASIBILITY_BASE = {
-    "automation": 70,
-    "nlp": 60,
-    "forecasting": 55,
-    "recommendation": 60,
-    "anomaly_detection": 58,
-    "computer_vision": 45,
-    "other": 50,
-}
+NET_VALUE_THRESHOLD = 6    # ≥ 6 → High
+NET_EFFORT_THRESHOLD = 5   # ≥ 5 → Low effort (good)
 
-COMPLEXITY_MODIFIER = {"low": 15, "medium": 0, "high": -20}
-
-BENEFIT_IMPACT_BASE = {
-    "revenue": 80,
-    "cost_reduction": 70,
-    "risk": 65,
-    "other": 50,
-}
-
-ROI_MULTIPLIERS = {
-    "revenue": 15000,
-    "cost_reduction": 10000,
-    "risk": 8000,
-    "other": 5000,
-}
-
-EFFORT_BASE = {"low": 4, "medium": 10, "high": 20}
-
-
-def _hash_int(seed: str, index: int, lo: int, hi: int) -> int:
-    digest = hashlib.md5(f"{seed}:{index}".encode()).hexdigest()
-    raw = int(digest[:8], 16)
-    span = hi - lo + 1
-    return lo + (raw % span)
+LABEL_TO_SCORE = {"low": 1, "medium": 2, "high": 3}
+TC_LABEL_TO_SCORE = {"low": 3, "medium": 2, "high": 1}   # inverted
 
 
 def compute_scores(structured: StructuredData) -> ScoringData:
-    seed = f"{structured.problem_statement[:40]}{structured.use_case_category}"
+    """
+    Derive all scoring outputs from the structured inputs.
+    Inputs read from StructuredData:
+        business_impact_level, foundational_impact_level,
+        technical_complexity, data_availability_level
+    """
+    bi = LABEL_TO_SCORE.get(structured.business_impact_level.lower(), 2)
+    fi = LABEL_TO_SCORE.get(structured.foundational_impact_level.lower(), 2)
+    tc = TC_LABEL_TO_SCORE.get(structured.technical_complexity.lower(), 2)
+    da = LABEL_TO_SCORE.get(structured.data_availability_level.lower(), 2)
 
-    # Business impact
-    impact_base = BENEFIT_IMPACT_BASE.get(structured.expected_benefit_type, 50)
-    business_impact = max(10, min(100, impact_base + _hash_int(seed, 0, -10, 10)))
+    net_value_score = bi * 2 + fi * 1        # BI weighted 2x
+    net_effort_score = tc + da
 
-    # Feasibility
-    feas_base = CATEGORY_FEASIBILITY_BASE.get(structured.use_case_category, 50)
-    complexity_mod = COMPLEXITY_MODIFIER.get(structured.complexity_estimate, 0)
-    feasibility = max(10, min(100, feas_base + complexity_mod + _hash_int(seed, 1, -8, 8)))
+    net_value = "High" if net_value_score >= NET_VALUE_THRESHOLD else "Low"
+    net_effort = "Low" if net_effort_score >= NET_EFFORT_THRESHOLD else "High"
 
-    # Data readiness
-    data_count = len(structured.available_data_sources)
-    data_base = min(90, 30 + data_count * 15)
-    data_readiness = max(10, min(100, data_base + _hash_int(seed, 2, -5, 5)))
-
-    # Risk/compliance (higher = lower risk = better)
-    risk_base = 80 if structured.use_case_category in ("nlp", "recommendation") else 60
-    risk_compliance = max(10, min(100, risk_base + _hash_int(seed, 3, -10, 10)))
-
-    # Composite
-    composite_score = int(
-        business_impact * 0.35
-        + feasibility * 0.30
-        + data_readiness * 0.20
-        + risk_compliance * 0.15
-    )
-
-    # Effort
-    effort_base = EFFORT_BASE.get(structured.complexity_estimate, 10)
-    effort_estimate_weeks = max(2, effort_base + _hash_int(seed, 4, -2, 4))
-
-    # ROI
-    roi_base = ROI_MULTIPLIERS.get(structured.expected_benefit_type, 5000)
-    roi_noise_pct = _hash_int(seed, 5, -20, 40)
-    roi_projection_12mo = int(roi_base * (business_impact / 100) * (1 + roi_noise_pct / 100))
-
-    # Priority tier
-    if composite_score >= 70:
-        priority_tier = "P1"
-    elif composite_score >= 50:
-        priority_tier = "P2"
+    # 2×2 category
+    if net_value == "High" and net_effort == "Low":
+        category = "Quick Win"
+    elif net_value == "High" and net_effort == "High":
+        category = "Strategic Initiative"
+    elif net_value == "Low" and net_effort == "Low":
+        category = "Backlog"
     else:
-        priority_tier = "P3"
+        category = "Deprioritized"
 
     return ScoringData(
-        business_impact=business_impact,
-        feasibility=feasibility,
-        data_readiness=data_readiness,
-        risk_compliance=risk_compliance,
-        composite_score=composite_score,
-        effort_estimate_weeks=effort_estimate_weeks,
-        roi_projection_12mo=roi_projection_12mo,
-        roi_currency="USD",
-        priority_tier=priority_tier,
-        scoring_version="mock_v1",
+        bi_score=bi,
+        fi_score=fi,
+        tc_score=tc,
+        da_score=da,
+        net_value_score=net_value_score,
+        net_effort_score=net_effort_score,
+        net_value=net_value,
+        net_effort=net_effort,
+        category=category,
+        scoring_version="v1",
         scored_at=datetime.now(timezone.utc).isoformat(),
+        # Keep legacy aliases populated
+        business_impact=bi,
+        feasibility=fi,
+        data_readiness=da,
+        risk_compliance=tc,
+        effort_estimate_weeks=net_effort_score,
     )
