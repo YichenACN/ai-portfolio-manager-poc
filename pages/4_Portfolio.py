@@ -92,10 +92,11 @@ def _render_kanban_card(uc: UseCase):
             f"{uc.structured.spoke_alignment or uc.department or '—'} · "
             f"{uc.structured.solution_category or '—'}"
         )
-        if uc.scoring.net_value_score > 0:
+        if uc.scoring.total_score > 0:
             st.caption(
-                f"Value: **{uc.scoring.net_value}** ({uc.scoring.net_value_score}/9) · "
-                f"Effort: **{uc.scoring.net_effort}** ({uc.scoring.net_effort_score}/6)"
+                f"Score: **{uc.scoring.total_score}/100** · "
+                f"Value: **{uc.scoring.net_value}** ({uc.scoring.net_value_score}/55) · "
+                f"Effort: **{uc.scoring.net_effort}** ({uc.scoring.net_effort_score}/45)"
             )
         st.markdown(
             f"Status: {STATUS_ICON.get(uc.status,'')} "
@@ -131,6 +132,7 @@ def _build_dataframe(use_cases: list) -> pd.DataFrame:
             "Solution": uc.structured.solution_category,
             "Grouping": uc.structured.grouping,
             "Category": uc.scoring.category,
+            "Total Score": uc.scoring.total_score,
             "Net Value": uc.scoring.net_value,
             "NV Score": uc.scoring.net_value_score,
             "Net Effort": uc.scoring.net_effort,

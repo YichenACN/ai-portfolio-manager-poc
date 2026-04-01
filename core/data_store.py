@@ -1,6 +1,6 @@
-import fcntl
 import json
 import os
+import sys
 import uuid
 import warnings
 from pathlib import Path
@@ -11,6 +11,24 @@ from core.models import UseCase, use_case_to_dict, use_case_from_dict
 
 DATA_FILE = Path(__file__).parent.parent / "data" / "use_cases.json"
 LOCK_FILE = DATA_FILE.with_suffix(".json.lock")
+
+
+def _lock(fh):
+    if sys.platform == "win32":
+        import msvcrt
+        msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(fh, fcntl.LOCK_EX)
+
+
+def _unlock(fh):
+    if sys.platform == "win32":
+        import msvcrt
+        msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _ensure_data_file() -> None:
@@ -66,7 +84,7 @@ def upsert(uc: UseCase) -> None:
     uc.updated_at = datetime.now(timezone.utc).isoformat()
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(LOCK_FILE, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        _lock(lf)
         try:
             _ensure_data_file()
             use_cases = _load_raw()
@@ -78,13 +96,13 @@ def upsert(uc: UseCase) -> None:
             use_cases.append(uc)
             save_all(use_cases)
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            _unlock(lf)
 
 
 def delete(uc_id: str) -> bool:
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(LOCK_FILE, "w") as lf:
-        fcntl.flock(lf, fcntl.LOCK_EX)
+        _lock(lf)
         try:
             _ensure_data_file()
             use_cases = _load_raw()
@@ -94,7 +112,7 @@ def delete(uc_id: str) -> bool:
             save_all(filtered)
             return True
         finally:
-            fcntl.flock(lf, fcntl.LOCK_UN)
+            _unlock(lf)
 
 
 def generate_id() -> str:

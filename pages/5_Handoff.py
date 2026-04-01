@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.data_store import load_all, upsert, get_by_id
 from core.models import STATUS_ORDER
+from core.scoring import compute_scores
 from core import llm_client
 
 # ── Session state defaults ─────────────────────────────────────────────────────
@@ -159,15 +160,21 @@ if not uc:
     st.error("Use case not found.")
     st.stop()
 
+# Auto-upgrade v1 scores to v2 when this page is opened
+if uc.meta.scoring_complete and uc.scoring.scoring_version != "v2":
+    uc.scoring = compute_scores(uc.structured)
+    upsert(uc)
+    uc = get_by_id(uc_id)
+
 # ── Header ─────────────────────────────────────────────────────────────────────
 header_col, status_col = st.columns([4, 2])
 with header_col:
     st.subheader(uc.title)
     st.caption(
         f"Department: {uc.department or 'N/A'} · "
-        f"Category: {uc.structured.use_case_category} · "
-        f"Priority: {uc.scoring.priority_tier} · "
-        f"Score: {uc.scoring.composite_score}/100"
+        f"Spoke: {uc.structured.spoke_alignment or 'N/A'} · "
+        f"Priority: {uc.scoring.category} · "
+        f"Score: {uc.scoring.total_score}/100"
     )
 with status_col:
     st.markdown(f"**Status:** {uc.status.replace('_', ' ').title()}")
@@ -192,9 +199,9 @@ if uc.structured.problem_statement:
     with st.expander("📌 Problem Statement"):
         st.markdown(uc.structured.problem_statement)
         col1, col2, col3 = st.columns(3)
-        col1.metric("Composite Score", f"{uc.scoring.composite_score}/100")
-        col2.metric("Effort", f"{uc.scoring.effort_estimate_weeks} weeks")
-        col3.metric("12-mo ROI", f"${uc.scoring.roi_projection_12mo:,.0f}")
+        col1.metric("Total Score", f"{uc.scoring.total_score}/100")
+        col2.metric("Net Value", f"{uc.scoring.net_value} ({uc.scoring.net_value_score}/55)")
+        col3.metric("Net Effort", f"{uc.scoring.net_effort} ({uc.scoring.net_effort_score}/45)")
 
 # ── Document tabs ──────────────────────────────────────────────────────────────
 tab_prd, tab_tech, tab_jira = st.tabs([
