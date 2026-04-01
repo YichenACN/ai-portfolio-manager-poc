@@ -1,3 +1,4 @@
+import html
 import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
@@ -84,7 +85,7 @@ def _render_kanban_card(uc: UseCase):
     _, text_color, bg = CATEGORY_STYLE.get(uc.scoring.category, ("⚪","#555","#eee"))
     with st.container(border=True):
         st.markdown(
-            f"<div style='font-weight:600;font-size:0.92rem;'>{uc.title[:50]}</div>",
+            f"<div style='font-weight:600;font-size:0.92rem;'>{html.escape(uc.title[:50])}</div>",
             unsafe_allow_html=True,
         )
         st.caption(
@@ -183,7 +184,7 @@ mc1.metric("Total",               len(filtered))
 mc2.metric("🟢 Quick Wins",       sum(1 for uc in filtered if uc.scoring.category == "Quick Win"))
 mc3.metric("🔵 Strategic",        sum(1 for uc in filtered if uc.scoring.category == "Strategic Initiative"))
 mc4.metric("⚪ Backlog",          sum(1 for uc in filtered if uc.scoring.category == "Backlog"))
-mc5.metric("🔴 Deprioritised",    sum(1 for uc in filtered if uc.scoring.category == "Deprioritized"))
+mc5.metric("🔴 Deprioritized",    sum(1 for uc in filtered if uc.scoring.category == "Deprioritized"))
 mc6.metric("🔨 In Progress",      sum(1 for uc in filtered if uc.status == "in_progress"))
 
 st.divider()

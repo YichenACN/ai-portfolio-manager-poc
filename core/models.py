@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Optional, List
 
 
@@ -153,6 +154,17 @@ IMPACT_OPTIONS = ["Low", "Medium", "High"]
 COMPLEXITY_OPTIONS = ["Low", "Medium", "High"]
 
 
+def _safe_int(val, default: int = 0, min_val: int = 0, max_val: int = 3) -> int:
+    """Convert val to int safely, clamping to [min_val, max_val]."""
+    if not val and val != 0:
+        return default
+    try:
+        result = int(val)
+    except (TypeError, ValueError):
+        return default
+    return max(min_val, min(max_val, result))
+
+
 def use_case_to_dict(uc: UseCase) -> dict:
     import dataclasses
     d = dataclasses.asdict(uc)
@@ -172,6 +184,8 @@ def use_case_to_dict(uc: UseCase) -> dict:
 
 
 def use_case_from_dict(d: dict) -> UseCase:
+    _now = datetime.now(timezone.utc).isoformat()
+
     intake = IntakeData(
         chat_history=d.get("intake", {}).get("chat_history", []),
         raw_summary=d.get("intake", {}).get("raw_summary", ""),
@@ -208,26 +222,27 @@ def use_case_from_dict(d: dict) -> UseCase:
     da = sc.get("da_score", sc.get("data_readiness", 0))
     nvs = sc.get("net_value_score", sc.get("composite_score", 0))
     nes = sc.get("net_effort_score", sc.get("effort_estimate_weeks", 0))
-    cat = sc.get("category", sc.get("priority_tier", "Backlog"))
+    raw_cat = sc.get("category", sc.get("priority_tier", "Backlog"))
+    cat = raw_cat if raw_cat in CATEGORIES else "Backlog"
 
     scoring = ScoringData(
-        bi_score=int(bi) if bi else 0,
-        fi_score=int(fi) if fi else 0,
-        tc_score=int(tc) if tc else 0,
-        da_score=int(da) if da else 0,
-        net_value_score=int(nvs) if nvs else 0,
-        net_effort_score=int(nes) if nes else 0,
+        bi_score=_safe_int(bi),
+        fi_score=_safe_int(fi),
+        tc_score=_safe_int(tc),
+        da_score=_safe_int(da),
+        net_value_score=_safe_int(nvs, max_val=9),
+        net_effort_score=_safe_int(nes, max_val=6),
         net_value=sc.get("net_value", ""),
         net_effort=sc.get("net_effort", ""),
-        category=cat if cat else "Backlog",
+        category=cat,
         scoring_version=sc.get("scoring_version", "v1"),
         scored_at=sc.get("scored_at"),
         # Legacy
-        business_impact=int(bi) if bi else 0,
-        feasibility=int(fi) if fi else 0,
-        data_readiness=int(da) if da else 0,
-        risk_compliance=int(tc) if tc else 0,
-        effort_estimate_weeks=int(nes) if nes else 0,
+        business_impact=_safe_int(bi),
+        feasibility=_safe_int(fi),
+        data_readiness=_safe_int(da),
+        risk_compliance=_safe_int(tc),
+        effort_estimate_weeks=_safe_int(nes, max_val=6),
     )
 
     docs = d.get("documents", {})
@@ -247,12 +262,12 @@ def use_case_from_dict(d: dict) -> UseCase:
     )
 
     return UseCase(
-        id=d["id"],
-        title=d["title"],
-        status=d["status"],
+        id=d.get("id", ""),
+        title=d.get("title", "Untitled"),
+        status=d.get("status", "idea"),
         department=d.get("department", ""),
-        created_at=d["created_at"],
-        updated_at=d["updated_at"],
+        created_at=d.get("created_at", _now),
+        updated_at=d.get("updated_at", _now),
         intake=intake,
         structured=structured,
         scoring=scoring,

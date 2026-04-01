@@ -57,6 +57,9 @@ def _sidebar():
 
 def _generate_doc(uc_id: str, doc_type: str) -> str:
     uc = get_by_id(uc_id)
+    if uc is None:
+        st.error("Use case not found. It may have been deleted.")
+        return ""
     from core.models import use_case_to_dict
     uc_dict = use_case_to_dict(uc)
     prompt_template = llm_client.load_prompt("document_generation.txt")
@@ -69,7 +72,11 @@ def _generate_doc(uc_id: str, doc_type: str) -> str:
     if existing_doc:
         doc_record["version"] = (existing_doc.get("version", 1) if isinstance(existing_doc, dict) else 1) + 1
 
-    setattr(uc.documents, doc_type, doc_record)
+    try:
+        setattr(uc.documents, doc_type, doc_record)
+    except AttributeError as e:
+        st.error(f"Could not save document: {e}")
+        return content
     uc.meta.handoff_complete = True
     upsert(uc)
     return content

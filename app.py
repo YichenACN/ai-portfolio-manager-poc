@@ -42,7 +42,7 @@ with st.sidebar:
         c2.metric("🔵 Strategic",   sum(1 for uc in use_cases if uc.scoring.category == "Strategic Initiative"))
         c3, c4 = st.columns(2)
         c3.metric("⚪ Backlog",     sum(1 for uc in use_cases if uc.scoring.category == "Backlog"))
-        c4.metric("🔴 Deprioritised",sum(1 for uc in use_cases if uc.scoring.category == "Deprioritized"))
+        c4.metric("🔴 Deprioritized",sum(1 for uc in use_cases if uc.scoring.category == "Deprioritized"))
 
         active_id = st.session_state.get("active_uc_id")
         if active_id:
@@ -73,7 +73,7 @@ try:
     col2.metric("🟢 Quick Wins",         sum(1 for uc in use_cases if uc.scoring.category == "Quick Win"))
     col3.metric("🔵 Strategic",          sum(1 for uc in use_cases if uc.scoring.category == "Strategic Initiative"))
     col4.metric("⚪ Backlog",            sum(1 for uc in use_cases if uc.scoring.category == "Backlog"))
-    col5.metric("🔴 Deprioritised",      sum(1 for uc in use_cases if uc.scoring.category == "Deprioritized"))
+    col5.metric("🔴 Deprioritized",      sum(1 for uc in use_cases if uc.scoring.category == "Deprioritized"))
     col6.metric("🔨 In Progress",        sum(1 for uc in use_cases if uc.status == "in_progress"))
 except Exception as e:
     st.warning(f"Could not load portfolio data: {e}")

@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from pathlib import Path
 
 import google.generativeai as genai
@@ -24,6 +25,16 @@ def _get_model(system_instruction: str = None) -> genai.GenerativeModel:
     return genai.GenerativeModel(model_name=MODEL_NAME)
 
 
+def _safe_response_text(response) -> str:
+    """Extract text from a Gemini response, raising RuntimeError if invalid."""
+    if response is None:
+        raise RuntimeError("API returned no response")
+    text = getattr(response, "text", None)
+    if not text or not text.strip():
+        raise RuntimeError("API returned an empty response")
+    return text
+
+
 def load_prompt(filename: str) -> str:
     return (PROMPTS_DIR / filename).read_text()
 
@@ -40,8 +51,13 @@ def chat_intake(conversation_history: list[dict], system_prompt: str) -> str:
         role = "model" if msg["role"] == "assistant" else "user"
         gemini_contents.append({"role": role, "parts": [msg["content"]]})
 
-    response = model.generate_content(gemini_contents)
-    return response.text
+    try:
+        response = model.generate_content(gemini_contents)
+        return _safe_response_text(response)
+    except (ValueError, RuntimeError):
+        raise
+    except Exception as e:
+        raise RuntimeError(f"AI service error during intake: {e}") from e
 
 
 def structure_use_case(chat_history: list[dict], prompt_template: str) -> dict:
@@ -54,8 +70,14 @@ def structure_use_case(chat_history: list[dict], prompt_template: str) -> dict:
         f"{msg['role'].upper()}: {msg['content']}" for msg in chat_history
     )
     prompt = prompt_template.replace("{{CONVERSATION}}", conversation_text)
-    response = model.generate_content(prompt)
-    return _parse_json_response(response.text)
+
+    try:
+        response = model.generate_content(prompt)
+        return _parse_json_response(_safe_response_text(response))
+    except (ValueError, RuntimeError):
+        raise
+    except Exception as e:
+        raise RuntimeError(f"AI service error during structuring: {e}") from e
 
 
 def generate_summary(chat_history: list[dict]) -> str:
@@ -69,8 +91,13 @@ def generate_summary(chat_history: list[dict]) -> str:
         "Focus on: the business problem, who is impacted, available data, and expected benefits.\n\n"
         f"{conversation_text}"
     )
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        return _safe_response_text(response)
+    except (ValueError, RuntimeError):
+        raise
+    except Exception as e:
+        raise RuntimeError(f"AI service error during summary generation: {e}") from e
 
 
 def generate_documents(use_case_dict: dict, doc_type: str, prompt_template: str) -> str:
@@ -83,8 +110,13 @@ def generate_documents(use_case_dict: dict, doc_type: str, prompt_template: str)
         .replace("{{USE_CASE_JSON}}", json.dumps(use_case_dict, indent=2))
         .replace("{{DOC_TYPE}}", doc_type)
     )
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        return _safe_response_text(response)
+    except (ValueError, RuntimeError):
+        raise
+    except Exception as e:
+        raise RuntimeError(f"AI service error during document generation: {e}") from e
 
 
 def _parse_json_response(raw: str) -> dict:
@@ -99,14 +131,21 @@ def _parse_json_response(raw: str) -> dict:
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        # Second attempt: ask the model to fix it
+        # Second attempt: wait briefly then ask the model to fix it
+        time.sleep(1)
         model = _get_model()
-        retry_response = model.generate_content(
-            f"The following text should be valid JSON but has formatting issues. "
-            f"Return ONLY the corrected JSON object with no other text:\n\n{raw}"
-        )
-        cleaned = retry_response.text.strip()
+        try:
+            retry_response = model.generate_content(
+                f"The following text should be valid JSON but has formatting issues. "
+                f"Return ONLY the corrected JSON object with no other text:\n\n{raw}"
+            )
+            cleaned = _safe_response_text(retry_response).strip()
+        except Exception as e:
+            raise RuntimeError(f"AI service error during JSON retry: {e}") from e
         if cleaned.startswith("```"):
             lines = cleaned.split("\n")
             cleaned = "\n".join(lines[1:-1]).strip()
-        return json.loads(cleaned)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Could not parse JSON response after retry. Raw text: {raw!r}") from e

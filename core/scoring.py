@@ -38,10 +38,10 @@ def compute_scores(structured: StructuredData) -> ScoringData:
         business_impact_level, foundational_impact_level,
         technical_complexity, data_availability_level
     """
-    bi = LABEL_TO_SCORE.get(structured.business_impact_level.lower(), 2)
-    fi = LABEL_TO_SCORE.get(structured.foundational_impact_level.lower(), 2)
-    tc = TC_LABEL_TO_SCORE.get(structured.technical_complexity.lower(), 2)
-    da = LABEL_TO_SCORE.get(structured.data_availability_level.lower(), 2)
+    bi = LABEL_TO_SCORE.get((structured.business_impact_level or "medium").lower(), 2)
+    fi = LABEL_TO_SCORE.get((structured.foundational_impact_level or "medium").lower(), 2)
+    tc = TC_LABEL_TO_SCORE.get((structured.technical_complexity or "medium").lower(), 2)
+    da = LABEL_TO_SCORE.get((structured.data_availability_level or "medium").lower(), 2)
 
     net_value_score = bi * 2 + fi * 1        # BI weighted 2x
     net_effort_score = tc + da
