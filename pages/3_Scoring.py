@@ -11,7 +11,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.data_store import load_all, upsert, get_by_id
-from core.scoring import compute_scores, NET_VALUE_THRESHOLD, NET_EFFORT_THRESHOLD
+from core.scoring import (
+    compute_scores,
+    NET_VALUE_THRESHOLD, NET_EFFORT_THRESHOLD,
+    BI_MAX, FI_MAX, TC_MAX, DA_MAX,
+    NET_VALUE_MAX, NET_EFFORT_MAX, TOTAL_SCORE_MAX,
+)
 
 st.session_state.setdefault("active_uc_id", None)
 
@@ -52,18 +57,10 @@ CATEGORY_STYLE = {
     "Deprioritized":       ("🔴", "#8a1a1a", "#f7d0d0"),
 }
 
-SCORE_TO_LABEL = {1: "Low", 2: "Medium", 3: "High"}
-TC_SCORE_TO_LABEL = {3: "Low", 2: "Medium", 1: "High"}   # inverted for display
-
-
-def _category_badge(category: str) -> str:
-    icon, _, _ = CATEGORY_STYLE.get(category, ("⚪", "#555", "#eee"))
-    return f"{icon} {category}"
-
 
 def _score_bar(score: int, max_score: int, color: str = "#4f8ef7") -> str:
     """Return an HTML progress bar."""
-    pct = int(score / max_score * 100)
+    pct = int(score / max_score * 100) if max_score else 0
     return (
         f"<div style='background:#e0e0e0;border-radius:4px;height:12px;'>"
         f"<div style='background:{color};width:{pct}%;height:12px;border-radius:4px;'></div>"
@@ -76,8 +73,8 @@ _sidebar()
 
 st.title("📊 Step 3: Scoring & Prioritisation")
 st.caption(
-    "Scores are derived from the four structured inputs using the CSL R&D "
-    "AI Value Prioritisation Framework."
+    "Scores are derived from structured inputs using the CSL R&D "
+    "AI Value Prioritisation Framework (v2 — 100-point scale)."
 )
 
 uc_id = st.session_state.get("active_uc_id")
@@ -134,8 +131,9 @@ st.markdown(
         <span style='font-size:1.6rem;font-weight:700;color:{text_color};'>
         {icon} {sc.category}</span>
         <span style='color:{text_color};font-size:0.95rem;margin-left:12px;'>
-        Net Value: <b>{sc.net_value}</b> ({sc.net_value_score}/9) &nbsp;·&nbsp;
-        Net Effort: <b>{sc.net_effort}</b> ({sc.net_effort_score}/6)
+        Net Value: <b>{sc.net_value}</b> ({sc.net_value_score}/{NET_VALUE_MAX}) &nbsp;·&nbsp;
+        Net Effort: <b>{sc.net_effort}</b> ({sc.net_effort_score}/{NET_EFFORT_MAX}) &nbsp;·&nbsp;
+        Total Score: <b>{sc.total_score}/{TOTAL_SCORE_MAX}</b>
         </span></div>""",
     unsafe_allow_html=True,
 )
@@ -147,29 +145,23 @@ with dim_col:
     st.subheader("Scoring Dimensions")
 
     # ── NET VALUE ──────────────────────────────────────────────────────────────
-    st.markdown("##### Net Value Score &nbsp; `= (BI × 2) + (FI × 1)`")
+    st.markdown(f"##### Net Value &nbsp; `= Business Impact + Foundational Impact`")
 
     r1c1, r1c2, r1c3 = st.columns([2, 1, 3])
-    r1c1.markdown("**Business Impact** _(×2 weight)_")
-    r1c2.markdown(f"**{SCORE_TO_LABEL.get(sc.bi_score, '—')}** `{sc.bi_score}/3`")
-    r1c3.markdown(
-        _score_bar(sc.bi_score * 2, 6, "#1a7a4a"),
-        unsafe_allow_html=True,
-    )
+    r1c1.markdown(f"**Business Impact** _(max {BI_MAX} pts)_")
+    r1c2.markdown(f"**{sc.bi_score}**/{BI_MAX}")
+    r1c3.markdown(_score_bar(sc.bi_score, BI_MAX, "#1a7a4a"), unsafe_allow_html=True)
 
     r2c1, r2c2, r2c3 = st.columns([2, 1, 3])
-    r2c1.markdown("**Foundational Impact** _(×1 weight)_")
-    r2c2.markdown(f"**{SCORE_TO_LABEL.get(sc.fi_score, '—')}** `{sc.fi_score}/3`")
-    r2c3.markdown(
-        _score_bar(sc.fi_score, 3, "#2a6aaa"),
-        unsafe_allow_html=True,
-    )
+    r2c1.markdown(f"**Foundational Impact** _(max {FI_MAX} pts)_")
+    r2c2.markdown(f"**{sc.fi_score}**/{FI_MAX}")
+    r2c3.markdown(_score_bar(sc.fi_score, FI_MAX, "#2a6aaa"), unsafe_allow_html=True)
 
     nv_color = "#1a7a4a" if sc.net_value == "High" else "#8a1a1a"
     st.markdown(
         f"<div style='text-align:right;font-size:1.1rem;margin:4px 0 12px;'>"
         f"Net Value Score: <b style='color:{nv_color};font-size:1.3rem;'>"
-        f"{sc.net_value_score}</b>/9 &nbsp;"
+        f"{sc.net_value_score}</b>/{NET_VALUE_MAX} &nbsp;"
         f"<span style='background:{nv_color};color:white;padding:2px 8px;"
         f"border-radius:4px;font-size:0.85rem;'>{sc.net_value}</span>"
         f"&nbsp; (threshold ≥{NET_VALUE_THRESHOLD})</div>",
@@ -179,29 +171,23 @@ with dim_col:
     st.divider()
 
     # ── NET EFFORT ─────────────────────────────────────────────────────────────
-    st.markdown("##### Net Effort Score &nbsp; `= TC + DA`")
+    st.markdown(f"##### Net Effort &nbsp; `= Tech Complexity + Data Availability`")
 
     r3c1, r3c2, r3c3 = st.columns([2, 1, 3])
-    r3c1.markdown("**Technical Complexity** _(inverted — Low is better)_")
-    r3c2.markdown(f"**{TC_SCORE_TO_LABEL.get(sc.tc_score, '—')}** `{sc.tc_score}/3`")
-    r3c3.markdown(
-        _score_bar(sc.tc_score, 3, "#7a5a1a"),
-        unsafe_allow_html=True,
-    )
+    r3c1.markdown(f"**Technical Complexity** _(inverted — max {TC_MAX} pts)_")
+    r3c2.markdown(f"**{sc.tc_score}**/{TC_MAX}")
+    r3c3.markdown(_score_bar(sc.tc_score, TC_MAX, "#7a5a1a"), unsafe_allow_html=True)
 
     r4c1, r4c2, r4c3 = st.columns([2, 1, 3])
-    r4c1.markdown("**Data Availability**")
-    r4c2.markdown(f"**{SCORE_TO_LABEL.get(sc.da_score, '—')}** `{sc.da_score}/3`")
-    r4c3.markdown(
-        _score_bar(sc.da_score, 3, "#5a1a7a"),
-        unsafe_allow_html=True,
-    )
+    r4c1.markdown(f"**Data Availability** _(max {DA_MAX} pts)_")
+    r4c2.markdown(f"**{sc.da_score}**/{DA_MAX}")
+    r4c3.markdown(_score_bar(sc.da_score, DA_MAX, "#5a1a7a"), unsafe_allow_html=True)
 
     ne_color = "#1a7a4a" if sc.net_effort == "Low" else "#8a1a1a"
     st.markdown(
         f"<div style='text-align:right;font-size:1.1rem;margin:4px 0 12px;'>"
         f"Net Effort Score: <b style='color:{ne_color};font-size:1.3rem;'>"
-        f"{sc.net_effort_score}</b>/6 &nbsp;"
+        f"{sc.net_effort_score}</b>/{NET_EFFORT_MAX} &nbsp;"
         f"<span style='background:{ne_color};color:white;padding:2px 8px;"
         f"border-radius:4px;font-size:0.85rem;'>{sc.net_effort} Effort</span>"
         f"&nbsp; (threshold ≥{NET_EFFORT_THRESHOLD} = Low)</div>",
@@ -212,7 +198,6 @@ with matrix_col:
     st.subheader("2×2 Prioritisation Matrix")
     st.caption("Net Value (x-axis) vs Net Effort (y-axis)")
 
-    # Build a visual 2×2 using HTML
     def _cell(label: str, icon: str, active: bool, bg: str, text_col: str) -> str:
         border = f"4px solid {text_col}" if active else "2px solid #ccc"
         opacity = "1" if active else "0.35"
@@ -224,15 +209,16 @@ with matrix_col:
             f"</td>"
         )
 
-    qw_active  = sc.category == "Quick Win"
-    si_active  = sc.category == "Strategic Initiative"
-    bl_active  = sc.category == "Backlog"
-    dp_active  = sc.category == "Deprioritized"
+    qw_active = sc.category == "Quick Win"
+    si_active = sc.category == "Strategic Initiative"
+    bl_active = sc.category == "Backlog"
+    dp_active = sc.category == "Deprioritized"
 
     matrix_html = f"""
     <table style='width:100%;border-collapse:separate;border-spacing:8px;'>
       <thead>
         <tr>
+          <th></th>
           <th style='text-align:center;color:#666;font-weight:500;padding-bottom:4px;'>
             Low Effort ✓</th>
           <th style='text-align:center;color:#666;font-weight:500;padding-bottom:4px;'>
@@ -258,17 +244,17 @@ with matrix_col:
     st.markdown(matrix_html, unsafe_allow_html=True)
 
     st.divider()
-    st.markdown("**Scoring formula recap**")
+    st.markdown("**Scoring framework (v2 — 100 pts)**")
     st.markdown(
-        """
-| Dimension | Weight | Low | Med | High |
-|---|---|---|---|---|
-| Business Impact | ×2 | 1 | 2 | 3 |
-| Foundational Impact | ×1 | 1 | 2 | 3 |
-| Technical Complexity | ×1 | **3** | 2 | 1 |
-| Data Availability | ×1 | 1 | 2 | **3** |
+        f"""
+| Dimension | Max | Sub-field points |
+|---|---|---|
+| Business Impact | {BI_MAX} | level H=15/M=9/L=3 · benefit rev/cost=9/prod=6/other=3 · align 2+=6/1=3/0=0 |
+| Foundational Impact | {FI_MAX} | level H=15/M=9/L=3 · grouping Ops/Data=10/Content=6/Other=3 |
+| Tech Complexity ↑ | {TC_MAX} | complexity L=10/M=6/H=2 · estimate L=6/M=3/H=0 · cat BI=4/GenAI=3/AI/ML=1 |
+| Data Availability | {DA_MAX} | level H=17/M=10/L=3 · sources 2+=8/1=4/0=0 |
 
-Net Value ≥ **6** → High &nbsp;·&nbsp; Net Effort ≥ **5** → Low
+Net Value ≥ **{NET_VALUE_THRESHOLD}**/{NET_VALUE_MAX} → High &nbsp;·&nbsp; Net Effort ≥ **{NET_EFFORT_THRESHOLD}**/{NET_EFFORT_MAX} → Low
         """
     )
 
@@ -278,12 +264,12 @@ st.divider()
 st.subheader("Score Breakdown")
 chart_df = pd.DataFrame({
     "Dimension": [
-        "Business Impact (×2)",
-        "Foundational Impact (×1)",
-        "Technical Complexity (inverted)",
-        "Data Availability (×1)",
+        f"Business Impact (/{BI_MAX})",
+        f"Foundational Impact (/{FI_MAX})",
+        f"Tech Complexity (/{TC_MAX})",
+        f"Data Availability (/{DA_MAX})",
     ],
-    "Score (out of 3)": [sc.bi_score, sc.fi_score, sc.tc_score, sc.da_score],
+    "Points": [sc.bi_score, sc.fi_score, sc.tc_score, sc.da_score],
 }).set_index("Dimension")
 st.bar_chart(chart_df, color="#4f8ef7")
 
@@ -303,20 +289,22 @@ with col_b:
         st.switch_page("pages/2_Structure.py")
 
 with st.expander("ℹ️ About this framework"):
-    st.markdown("""
-    **CSL R&D AI Value Prioritisation Framework**
+    st.markdown(f"""
+    **CSL R&D AI Value Prioritisation Framework (v2)**
 
-    Use cases are evaluated on two axes:
+    Use cases are scored on 100 points across four dimensions, then classified on two axes:
 
-    **Net Value** = (Business Impact × 2) + (Foundational Impact × 1)
-    - *Business Impact*: direct effect on cycle time, portfolio growth, or operational efficiency
-    - *Foundational Impact*: enterprise-wide or cross-functional enablement value
-    - Threshold: score ≥ **6** out of 9 = High Value
+    **Net Value** = Business Impact + Foundational Impact (max {NET_VALUE_MAX} pts)
+    - *Business Impact*: level + expected benefit type + strategic alignment tags
+    - *Foundational Impact*: level + grouping type
+    - Threshold: ≥ **{NET_VALUE_THRESHOLD}** pts = High Value
 
-    **Net Effort** = Technical Complexity (inverted) + Data Availability
-    - *Technical Complexity*: Low complexity scores **3** (easier to build)
-    - *Data Availability*: High availability scores **3** (data is ready)
-    - Threshold: score ≥ **5** out of 6 = Low Effort
+    **Net Effort** = Tech Complexity + Data Availability (max {NET_EFFORT_MAX} pts)
+    - *Tech Complexity* (inverted): Low complexity earns more points (easier to build)
+    - *Data Availability*: High availability earns more points (data is ready)
+    - Threshold: ≥ **{NET_EFFORT_THRESHOLD}** pts = Low Effort
+
+    **Total Score** = Net Value + Net Effort (max **{TOTAL_SCORE_MAX}** pts) — used for ranking within category
 
     **Categories**
     - 🟢 **Quick Win** — High Value, Low Effort → do now

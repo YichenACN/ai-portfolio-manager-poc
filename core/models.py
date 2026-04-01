@@ -46,8 +46,9 @@ class ScoringData:
     da_score: int = 0    # Data Availability score (1-3)
 
     # Derived composite scores
-    net_value_score: int = 0    # BI×2 + FI×1  (range 3-9)
-    net_effort_score: int = 0   # TC + DA       (range 2-6)
+    net_value_score: int = 0    # BI_pts + FI_pts  (range 0-55)
+    net_effort_score: int = 0   # TC_pts + DA_pts  (range 0-45)
+    total_score: int = 0        # net_value + net_effort (range 0-100)
 
     # High / Low labels (threshold: net_value ≥ 6 → High; net_effort ≥ 5 → Low)
     net_value: str = ""     # "High" or "Low"
@@ -226,23 +227,24 @@ def use_case_from_dict(d: dict) -> UseCase:
     cat = raw_cat if raw_cat in CATEGORIES else "Backlog"
 
     scoring = ScoringData(
-        bi_score=_safe_int(bi),
-        fi_score=_safe_int(fi),
-        tc_score=_safe_int(tc),
-        da_score=_safe_int(da),
-        net_value_score=_safe_int(nvs, max_val=9),
-        net_effort_score=_safe_int(nes, max_val=6),
+        bi_score=_safe_int(bi, max_val=30),
+        fi_score=_safe_int(fi, max_val=25),
+        tc_score=_safe_int(tc, max_val=20),
+        da_score=_safe_int(da, max_val=25),
+        net_value_score=_safe_int(nvs, max_val=55),
+        net_effort_score=_safe_int(nes, max_val=45),
+        total_score=_safe_int(sc.get("total_score", 0), max_val=100),
         net_value=sc.get("net_value", ""),
         net_effort=sc.get("net_effort", ""),
         category=cat,
         scoring_version=sc.get("scoring_version", "v1"),
         scored_at=sc.get("scored_at"),
         # Legacy
-        business_impact=_safe_int(bi),
-        feasibility=_safe_int(fi),
-        data_readiness=_safe_int(da),
-        risk_compliance=_safe_int(tc),
-        effort_estimate_weeks=_safe_int(nes, max_val=6),
+        business_impact=_safe_int(bi, max_val=30),
+        feasibility=_safe_int(fi, max_val=25),
+        data_readiness=_safe_int(da, max_val=25),
+        risk_compliance=_safe_int(tc, max_val=20),
+        effort_estimate_weeks=_safe_int(nes, max_val=45),
     )
 
     docs = d.get("documents", {})
