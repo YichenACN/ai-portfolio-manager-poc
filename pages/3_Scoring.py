@@ -218,6 +218,7 @@ with matrix_col:
     <table style='width:100%;border-collapse:separate;border-spacing:8px;'>
       <thead>
         <tr>
+          <th></th>
           <th style='text-align:center;color:#666;font-weight:500;padding-bottom:4px;'>
             Low Effort ✓</th>
           <th style='text-align:center;color:#666;font-weight:500;padding-bottom:4px;'>

@@ -1,6 +1,7 @@
 import html
 import streamlit as st
 import pandas as pd
+import plotly.graph_objects as go
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -192,7 +193,7 @@ mc6.metric("🔨 In Progress",      sum(1 for uc in filtered if uc.status == "in
 st.divider()
 
 # ── Tabs ───────────────────────────────────────────────────────────────────────
-tab_kanban, tab_table, tab_analytics = st.tabs(["Kanban", "Table", "Analytics"])
+tab_kanban, tab_table, tab_plot, tab_analytics = st.tabs(["Kanban", "Table", "2×2 Plot", "Analytics"])
 
 # ── Kanban ─────────────────────────────────────────────────────────────────────
 with tab_kanban:
@@ -247,6 +248,120 @@ with tab_table:
                     st.rerun()
     else:
         st.info("No use cases match the current filters.")
+
+# ── 2×2 Plot ───────────────────────────────────────────────────────────────────
+with tab_plot:
+    from core.scoring import compute_scores as _cs, NET_VALUE_THRESHOLD, NET_EFFORT_THRESHOLD, NET_VALUE_MAX, NET_EFFORT_MAX
+    scored = []
+    for uc in filtered:
+        if uc.meta.scoring_complete:
+            if uc.scoring.scoring_version != "v2":
+                uc.scoring = _cs(uc.structured)   # recompute in-memory only, don't save
+            scored.append(uc)
+    if not scored:
+        st.info("No scored use cases to plot. Score some use cases first.")
+    else:
+
+        # X-axis = Complexity (inverted effort: high effort score = low complexity)
+        # Y-axis = Value (net_value_score)
+        # Quadrant dividers match the scoring thresholds
+        X_DIVIDER = NET_EFFORT_MAX - NET_EFFORT_THRESHOLD  # 45 - 23 = 22
+        Y_DIVIDER = NET_VALUE_THRESHOLD                    # 30
+
+        CATEGORY_COLOR = {
+            "Quick Win":            "#1a7a4a",
+            "Strategic Initiative": "#1a4a8a",
+            "Backlog":              "#888888",
+            "Deprioritized":        "#8a1a1a",
+        }
+
+        x_vals, y_vals, labels, colors, hovers = [], [], [], [], []
+        for uc in scored:
+            x = NET_EFFORT_MAX - uc.scoring.net_effort_score   # invert: high = complex
+            y = uc.scoring.net_value_score
+            x_vals.append(x)
+            y_vals.append(y)
+            labels.append(uc.title[:35] + ("…" if len(uc.title) > 35 else ""))
+            colors.append(CATEGORY_COLOR.get(uc.scoring.category, "#888"))
+            hovers.append(
+                f"<b>{uc.title}</b><br>"
+                f"Category: {uc.scoring.category}<br>"
+                f"Total Score: {uc.scoring.total_score}/100<br>"
+                f"Net Value: {uc.scoring.net_value} ({uc.scoring.net_value_score}/55)<br>"
+                f"Net Effort: {uc.scoring.net_effort} ({uc.scoring.net_effort_score}/45)<br>"
+                f"Spoke: {uc.structured.spoke_alignment or 'N/A'}<br>"
+                f"Solution: {uc.structured.solution_category or 'N/A'}"
+            )
+
+        fig = go.Figure()
+
+        # ── Quadrant background shading ───────────────────────────────────────
+        quad_config = [
+            # (x0, x1, y0, y1, color, label, label_x, label_y)
+            (0,          X_DIVIDER, Y_DIVIDER, NET_VALUE_MAX,  "rgba(212,237,218,0.4)", "QUICK WINS",           X_DIVIDER * 0.5,           NET_VALUE_MAX * 0.95),
+            (X_DIVIDER,  NET_EFFORT_MAX, Y_DIVIDER, NET_VALUE_MAX, "rgba(208,228,247,0.4)", "STRATEGIC INITIATIVES", X_DIVIDER + (NET_EFFORT_MAX - X_DIVIDER) * 0.5, NET_VALUE_MAX * 0.95),
+            (0,          X_DIVIDER, 0,          Y_DIVIDER,     "rgba(238,238,238,0.4)", "BACKLOG",              X_DIVIDER * 0.5,           Y_DIVIDER * 0.1),
+            (X_DIVIDER,  NET_EFFORT_MAX, 0,      Y_DIVIDER,     "rgba(247,208,208,0.4)", "DEPRIORITIZED",        X_DIVIDER + (NET_EFFORT_MAX - X_DIVIDER) * 0.5, Y_DIVIDER * 0.1),
+        ]
+        for x0, x1, y0, y1, fill, qlabel, lx, ly in quad_config:
+            fig.add_shape(type="rect", x0=x0, x1=x1, y0=y0, y1=y1,
+                          fillcolor=fill, line_width=0, layer="below")
+            fig.add_annotation(x=lx, y=ly, text=f"<b>{qlabel}</b>",
+                               showarrow=False, font=dict(size=11, color="#555"),
+                               xanchor="center", yanchor="top")
+
+        # ── Divider lines ─────────────────────────────────────────────────────
+        fig.add_shape(type="line", x0=X_DIVIDER, x1=X_DIVIDER, y0=0, y1=NET_VALUE_MAX,
+                      line=dict(color="#aaa", width=1.5, dash="dash"))
+        fig.add_shape(type="line", x0=0, x1=NET_EFFORT_MAX, y0=Y_DIVIDER, y1=Y_DIVIDER,
+                      line=dict(color="#aaa", width=1.5, dash="dash"))
+
+        # ── Data points ───────────────────────────────────────────────────────
+        fig.add_trace(go.Scatter(
+            x=x_vals, y=y_vals,
+            mode="markers+text",
+            marker=dict(size=14, color=colors, line=dict(width=1.5, color="white")),
+            text=labels,
+            textposition="top center",
+            textfont=dict(size=9, color="#333"),
+            hovertext=hovers,
+            hoverinfo="text",
+            showlegend=False,
+        ))
+
+        # ── Legend (manual) ───────────────────────────────────────────────────
+        for cat, col in CATEGORY_COLOR.items():
+            fig.add_trace(go.Scatter(
+                x=[None], y=[None], mode="markers",
+                marker=dict(size=10, color=col),
+                name=cat, showlegend=True,
+            ))
+
+        fig.update_layout(
+            height=620,
+            margin=dict(l=60, r=40, t=40, b=60),
+            xaxis=dict(
+                title="Complexity →  (Low effort score = High complexity)",
+                range=[-1, NET_EFFORT_MAX + 1],
+                showgrid=True, gridcolor="#eee",
+                zeroline=False,
+                dtick=2, tick0=0,
+            ),
+            yaxis=dict(
+                title="Value →",
+                range=[-1, NET_VALUE_MAX + 2],
+                showgrid=True, gridcolor="#eee",
+                zeroline=False,
+                dtick=2, tick0=0,
+            ),
+            plot_bgcolor="white",
+            legend=dict(
+                orientation="h", yanchor="bottom", y=1.02,
+                xanchor="right", x=1,
+            ),
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
 # ── Analytics ──────────────────────────────────────────────────────────────────
 with tab_analytics:

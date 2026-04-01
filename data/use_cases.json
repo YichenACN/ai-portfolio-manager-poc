@@ -6546,12 +6546,140 @@
     }
   },
   {
-    "id": "uc_20260401_091502_f1af4ac0",
+    "id": "uc_20260401_150246_dc7268f7",
     "title": "New Use Case",
     "status": "idea",
     "department": "",
-    "created_at": "2026-04-01T09:15:02.109431+00:00",
-    "updated_at": "2026-04-01T09:15:04.410489+00:00",
+    "created_at": "2026-04-01T15:02:46.540611+00:00",
+    "updated_at": "2026-04-01T15:02:46.540683+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_description": "",
+      "suggested_approach": "",
+      "structuring_completed_at": null,
+      "spoke_alignment": "",
+      "solution_category": "",
+      "grouping": "",
+      "business_impact_level": "medium",
+      "foundational_impact_level": "medium",
+      "technical_complexity": "medium",
+      "data_availability_level": "medium",
+      "use_case_category": "other",
+      "complexity_estimate": "medium",
+      "expected_benefit_type": "",
+      "strategic_alignment": []
+    },
+    "scoring": {
+      "bi_score": 0,
+      "fi_score": 0,
+      "tc_score": 0,
+      "da_score": 0,
+      "net_value_score": 0,
+      "net_effort_score": 0,
+      "total_score": 0,
+      "net_value": "",
+      "net_effort": "",
+      "category": "Backlog",
+      "scoring_version": "v1",
+      "scored_at": null,
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260401_151144_be191ffe",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-04-01T15:11:44.500766+00:00",
+    "updated_at": "2026-04-01T15:11:44.500816+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_description": "",
+      "suggested_approach": "",
+      "structuring_completed_at": null,
+      "spoke_alignment": "",
+      "solution_category": "",
+      "grouping": "",
+      "business_impact_level": "medium",
+      "foundational_impact_level": "medium",
+      "technical_complexity": "medium",
+      "data_availability_level": "medium",
+      "use_case_category": "other",
+      "complexity_estimate": "medium",
+      "expected_benefit_type": "",
+      "strategic_alignment": []
+    },
+    "scoring": {
+      "bi_score": 0,
+      "fi_score": 0,
+      "tc_score": 0,
+      "da_score": 0,
+      "net_value_score": 0,
+      "net_effort_score": 0,
+      "total_score": 0,
+      "net_value": "",
+      "net_effort": "",
+      "category": "Backlog",
+      "scoring_version": "v1",
+      "scored_at": null,
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260401_151144_39980574",
+    "title": "Clinical Trial Document Summarization",
+    "status": "scored",
+    "department": "Clinical operations",
+    "created_at": "2026-04-01T15:11:44.863144+00:00",
+    "updated_at": "2026-04-01T15:21:16.427960+00:00",
     "intake": {
       "chat_history": [
         {
@@ -6560,9 +6688,362 @@
         },
         {
           "role": "assistant",
-          "content": "Hello! I'm happy to help you document your AI use case idea. To begin, could you please tell me a bit about the core business problem or pain point you're looking to address? What challenge does your team currently face?"
+          "content": "Hello! I'm here to help you document your AI use case idea. To start, could you please describe the core business problem or pain point you're looking to address? Being as specific as possible, perhaps with some metrics like hours spent, error rates, or cycle time impact, would be very helpful."
+        },
+        {
+          "role": "user",
+          "content": "Clinical Trial Document Summarization"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks for sharing that. \"Clinical Trial Document Summarization\" sounds like a valuable area.\n\nCould you elaborate on the specific pain points or challenges associated with this? For example, are researchers spending too much time manually reviewing documents, or is there a risk of missing critical information due to the volume? If you have any metrics, like the average time spent per document or per trial, that would be great."
+        },
+        {
+          "role": "user",
+          "content": "Medical writers spend ~15 hrs per document manually summarizing clinical study reports. High error rate (~12%) due to fatigue on repetitive work."
+        },
+        {
+          "role": "assistant",
+          "content": "That's very clear and helpful \u2013 15 hours per document for medical writers with a 12% error rate due to fatigue highlights a significant pain point.\n\nWhich R&D function or team is primarily impacted by this, and approximately how many people are involved in this specific task?"
+        },
+        {
+          "role": "user",
+          "content": "Clinical Development / Medical Writing \u2014 ~25 people impacted"
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. So, the Medical Writing team within Clinical Development, about 25 people, are spending significant time on this task with a noticeable error rate.\n\nGiven the need for summarizing clinical study reports, what type of AI/data solution do you envision might best address this problem? Are you thinking of something like Generative AI, traditional AI/ML, or another approach?"
+        },
+        {
+          "role": "user",
+          "content": "GenAI (document summarization)"
+        },
+        {
+          "role": "assistant",
+          "content": "GenAI for document summarization makes a lot of sense for this challenge.\n\nTo build such a solution, what specific data sources would be available or needed? For example, are these clinical study reports stored in a specific system, database, or document repository?"
+        },
+        {
+          "role": "user",
+          "content": "eTMF (Trial Master File), EDC systems, regulatory vaults (Veeva)"
+        },
+        {
+          "role": "assistant",
+          "content": "Excellent, so the eTMF, EDC systems, and regulatory vaults like Veeva would be the primary data sources for the GenAI model.\n\nThinking about the impact, what is the expected business benefit from implementing a GenAI solution for this summarization task? Are we looking at cycle time reduction, improved knowledge retention, greater operational efficiency, or perhaps something else?"
+        },
+        {
+          "role": "user",
+          "content": "Reduce cycle time by ~60%, free up writer capacity for higher value work"
+        },
+        {
+          "role": "assistant",
+          "content": "Reducing cycle time by 60% and freeing up writer capacity for higher-value work are clear and compelling business impacts.\n\nNow, regarding the broader organizational impact, how significant do you think the foundational or cross-functional benefit of this solution would be? Could it enable other initiatives, or would it primarily benefit the Medical Writing team?"
+        },
+        {
+          "role": "user",
+          "content": "High \u2014 same solution can be reused for regulatory submissions, safety reports, and audit prep"
+        },
+        {
+          "role": "assistant",
+          "content": "That's a strong indicator of cross-functional value, potentially benefiting Regulatory, Safety, and even Strategic Operations for audit prep.\n\nNext, how technically complex do you anticipate this solution would be to build? Would it involve novel ML research, leveraging existing GenAI tools with fine-tuning, or something more straightforward like simple automation?"
+        },
+        {
+          "role": "user",
+          "content": "Medium \u2014 GenAI with existing tools (RAG on documents), no novel ML needed\n"
+        },
+        {
+          "role": "assistant",
+          "content": "Medium complexity, utilizing existing GenAI tools with RAG on documents, sounds like a pragmatic approach.\n\nFinally, regarding the data sources you mentioned earlier (eTMF, EDC, regulatory vaults), how available and accessible is that required data right now? Is it readily available in a structured format, or would significant effort be needed to access and prepare it?"
+        },
+        {
+          "role": "user",
+          "content": "High \u2014 documents already stored in Veeva and eTMF, accessible now"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks for that final piece of information \u2013 knowing the data is highly available and accessible in Veeva and eTMF right now is very helpful.\n\nI think I have a good picture now. Feel free to click 'Finalize Intake' when you're ready, or continue sharing any additional context."
         }
       ],
+      "raw_summary": "The core business problem identified is the highly manual and time-consuming process of summarizing clinical study reports. Medical writers currently spend approximately 15 hours per document on this task, leading to a significant 12% error rate due to the repetitive nature of the work and subsequent fatigue. This issue primarily impacts the Clinical Development / Medical Writing team, a group of about 25 people.\n\nA Generative AI (GenAI) solution for document summarization, leveraging existing tools with Retrieval Augmented Generation (RAG) on documents, is proposed to address this challenge. The necessary data, comprising clinical study reports, is readily available and accessible within existing systems such as the eTMF (Trial Master File), EDC systems, and regulatory vaults like Veeva.\n\nImplementing this GenAI solution is expected to deliver substantial benefits, including a 60% reduction in cycle time for document summarization and the freeing up of medical writers' capacity to focus on higher-value work. Beyond the immediate team, the solution offers high cross-functional value as the same approach can be reused for other critical tasks like regulatory submissions, safety report generation, and audit preparation across the organization."
+    },
+    "structured": {
+      "problem_statement": "Medical writers spend approximately 15 hours per document manually summarizing clinical study reports, leading to a high error rate of about 12% due to fatigue on repetitive work.",
+      "impacted_users": "Clinical Development / Medical Writing team, with approximately 25 people impacted.",
+      "available_data_sources": [
+        "eTMF (Trial Master File)",
+        "EDC systems",
+        "regulatory vaults (Veeva)"
+      ],
+      "expected_benefit_description": "Reduce cycle time by approximately 60% and free up writer capacity for higher value work.",
+      "suggested_approach": "A Generative AI (GenAI) solution for document summarization is envisioned. This would involve GenAI with existing tools, utilizing RAG (Retrieval Augmented Generation) on documents from sources like eTMF, EDC systems, and regulatory vaults, without needing novel ML research.",
+      "structuring_completed_at": "2026-04-01T15:20:24.168816+00:00",
+      "spoke_alignment": "Clinical",
+      "solution_category": "GenAI",
+      "grouping": "Operational Efficiency",
+      "business_impact_level": "high",
+      "foundational_impact_level": "high",
+      "technical_complexity": "medium",
+      "data_availability_level": "high",
+      "use_case_category": "other",
+      "complexity_estimate": "medium",
+      "expected_benefit_type": "",
+      "strategic_alignment": []
+    },
+    "scoring": {
+      "bi_score": 18,
+      "fi_score": 25,
+      "tc_score": 12,
+      "da_score": 25,
+      "net_value_score": 43,
+      "net_effort_score": 37,
+      "total_score": 80,
+      "net_value": "High",
+      "net_effort": "Low",
+      "category": "Quick Win",
+      "scoring_version": "v2",
+      "scored_at": "2026-04-01T15:21:16.427932+00:00",
+      "business_impact": 18,
+      "feasibility": 25,
+      "data_readiness": 25,
+      "risk_compliance": 12,
+      "effort_estimate_weeks": 37,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": true,
+      "structuring_complete": true,
+      "scoring_complete": true,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260401_153439_9d03885b",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-04-01T15:34:39.254072+00:00",
+    "updated_at": "2026-04-01T15:34:39.254122+00:00",
+    "intake": {
+      "chat_history": [],
+      "raw_summary": ""
+    },
+    "structured": {
+      "problem_statement": "",
+      "impacted_users": "",
+      "available_data_sources": [],
+      "expected_benefit_description": "",
+      "suggested_approach": "",
+      "structuring_completed_at": null,
+      "spoke_alignment": "",
+      "solution_category": "",
+      "grouping": "",
+      "business_impact_level": "medium",
+      "foundational_impact_level": "medium",
+      "technical_complexity": "medium",
+      "data_availability_level": "medium",
+      "use_case_category": "other",
+      "complexity_estimate": "medium",
+      "expected_benefit_type": "",
+      "strategic_alignment": []
+    },
+    "scoring": {
+      "bi_score": 0,
+      "fi_score": 0,
+      "tc_score": 0,
+      "da_score": 0,
+      "net_value_score": 0,
+      "net_effort_score": 0,
+      "total_score": 0,
+      "net_value": "",
+      "net_effort": "",
+      "category": "Backlog",
+      "scoring_version": "v1",
+      "scored_at": null,
+      "business_impact": 0,
+      "feasibility": 0,
+      "data_readiness": 0,
+      "risk_compliance": 0,
+      "effort_estimate_weeks": 0,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": false,
+      "structuring_complete": false,
+      "scoring_complete": false,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260401_154051_7871257e",
+    "title": "Adverse Event Signal Detection",
+    "status": "scored",
+    "department": "Safety & Pharmacovigilance",
+    "created_at": "2026-04-01T15:40:51.004132+00:00",
+    "updated_at": "2026-04-01T15:43:18.931951+00:00",
+    "intake": {
+      "chat_history": [
+        {
+          "role": "user",
+          "content": "Hi, I have an AI use case idea I'd like to document."
+        },
+        {
+          "role": "assistant",
+          "content": "Hello! I'm your AI Portfolio Advisor, and I'm here to help you document your AI use case idea so we can properly evaluate and prioritize it.\n\nTo start, could you please describe the core business problem or pain point you're looking to address? Try to be as specific as possible, and if you have any metrics like hours spent, error rates, or cycle time impacts, that would be very helpful."
+        },
+        {
+          "role": "user",
+          "content": "Adverse Event Signal Detection"
+        },
+        {
+          "role": "assistant",
+          "content": "Thanks for sharing that, \"Adverse Event Signal Detection\" is a critical area.\n\nCould you tell me more about the specific pain points within Adverse Event Signal Detection? For instance, what aspects are most challenging, and are there any metrics you can share, such as the volume of cases, time spent on review, or current methods that are inefficient?"
+        },
+        {
+          "role": "user",
+          "content": "Pharmacovigilance team manually reviews ~500 adverse event reports/week, taking ~3 days to flag signals. Delays in detection increase risk."
+        },
+        {
+          "role": "assistant",
+          "content": "That's a very clear problem statement with good metrics \u2013 500 reports per week and a 3-day flagging time. Thank you.\n\nNext, could you tell me which R&D function or team is primarily impacted by this challenge, and approximately how many people are involved in this manual review process?"
+        },
+        {
+          "role": "user",
+          "content": "Safety & Pharmacovigilance \u2014 ~15 people"
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, so the Safety & Pharmacovigilance team, with about 15 people, is directly impacted.\n\nGiven this context, what type of AI or data solution do you envision best fitting this problem? Would it be something like GenAI, AI/ML, Automation, Business Intelligence, Search, or System Integration?"
+        },
+        {
+          "role": "user",
+          "content": "AI/ML "
+        },
+        {
+          "role": "assistant",
+          "content": "AI/ML makes a lot of sense for signal detection.\n\nTo build an AI/ML model for this, what data sources are currently available or would be needed? Think about systems, databases, or specific types of adverse event report data you'd be working with."
+        },
+        {
+          "role": "user",
+          "content": "Safety database (Argus/ARISg), EHR feeds, WHO drug dictionary"
+        },
+        {
+          "role": "assistant",
+          "content": "Excellent, the Safety database (Argus/ARISg), EHR feeds, and the WHO drug dictionary are all valuable data sources.\n\nConsidering these sources and an AI/ML approach, what do you anticipate the key business impacts would be? For example, what kind of cycle time reduction are you hoping for, or how would it enhance operational efficiency or patient safety?"
+        },
+        {
+          "role": "user",
+          "content": "Reduce signal detection time from 3 days to same day, reduce missed signals by ~30%"
+        },
+        {
+          "role": "assistant",
+          "content": "Those are significant and impactful targets \u2013 reducing detection time to the same day and cutting missed signals by 30%.\n\nNext, let's consider the broader picture. How significant do you think the foundational or cross-functional benefit of this initiative would be? Would it enable other initiatives or benefit multiple teams beyond just Safety & Pharmacovigilance?"
+        },
+        {
+          "role": "user",
+          "content": "Medium \u2014 benefits safety, regulatory, and medical affairs teams"
+        },
+        {
+          "role": "assistant",
+          "content": "That's a good level of cross-functional benefit, touching Safety, Regulatory, and Medical Affairs.\n\nNow, regarding the technical aspect, how technically complex do you anticipate this project would be to build? Would it involve novel ML research, adapting existing ML tools, or perhaps simpler automation?"
+        },
+        {
+          "role": "user",
+          "content": "High \u2014 requires custom ML model trained on historical safety data"
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, \"High\" complexity due to the need for a custom ML model trained on historical safety data. That helps set expectations.\n\nFinally, regarding the data you mentioned earlier \u2013 the Safety database (Argus/ARISg), EHR feeds, and the WHO drug dictionary \u2013 how available and accessible is that required data right now? Is it readily available, or would significant effort be needed to access or prepare it?"
+        },
+        {
+          "role": "user",
+          "content": "medium \u2014 data exists in Argus but needs cleaning and labeling effort"
+        },
+        {
+          "role": "assistant",
+          "content": "Thank you for that detail. So the data is available in Argus, but there's a recognized effort needed for cleaning and labeling.\n\nI think I have a good picture now. Feel free to click 'Finalize Intake' when you're ready, or continue sharing any additional context."
+        }
+      ],
+      "raw_summary": "The core business problem revolves around the manual and time-consuming process of Adverse Event (AE) Signal Detection within pharmacovigilance. The Safety & Pharmacovigilance team, consisting of approximately 15 people, manually reviews around 500 AE reports per week, with signal flagging taking about 3 days. This significant delay in detecting potential adverse events increases patient risk and impacts operational efficiency. Beyond the immediate team, the solution is expected to benefit Regulatory and Medical Affairs functions.\n\nAn AI/ML solution is proposed to address this challenge, aiming to automate and enhance signal detection. Critical data sources identified for developing a custom machine learning model include the Safety database (Argus/ARISg), Electronic Health Record (EHR) feeds, and the WHO drug dictionary. While these data sources are available, a medium effort will be required for data cleaning and labeling before they can be effectively utilized for model training.\n\nThe expected benefits are substantial, focusing on both speed and accuracy. The primary goal is to drastically reduce signal detection time from the current 3 days to the same day. Additionally, the initiative aims to reduce missed signals by approximately 30%. These improvements would significantly enhance patient safety through earlier identification of potential issues and markedly improve the operational efficiency of the pharmacovigilance team."
+    },
+    "structured": {
+      "problem_statement": "The Pharmacovigilance team manually reviews approximately 500 adverse event reports per week, taking about 3 days to flag signals, leading to delays in detection and increased risk.",
+      "impacted_users": "Safety & Pharmacovigilance team, ~15 people",
+      "available_data_sources": [
+        "Safety database (Argus/ARISg)",
+        "EHR feeds",
+        "WHO drug dictionary"
+      ],
+      "expected_benefit_description": "Reduce signal detection time from 3 days to same day and reduce missed signals by ~30%.",
+      "suggested_approach": "An AI/ML solution is envisioned to process adverse event reports. It would leverage data from the Safety database (Argus/ARISg), EHR feeds, and the WHO drug dictionary to identify and flag adverse event signals.",
+      "structuring_completed_at": "2026-04-01T15:42:44.524171+00:00",
+      "spoke_alignment": "Safety",
+      "solution_category": "AI/ML",
+      "grouping": "Predictive Analytics",
+      "business_impact_level": "high",
+      "foundational_impact_level": "medium",
+      "technical_complexity": "high",
+      "data_availability_level": "medium",
+      "use_case_category": "other",
+      "complexity_estimate": "medium",
+      "expected_benefit_type": "",
+      "strategic_alignment": []
+    },
+    "scoring": {
+      "bi_score": 18,
+      "fi_score": 19,
+      "tc_score": 6,
+      "da_score": 18,
+      "net_value_score": 37,
+      "net_effort_score": 24,
+      "total_score": 61,
+      "net_value": "High",
+      "net_effort": "Low",
+      "category": "Quick Win",
+      "scoring_version": "v2",
+      "scored_at": "2026-04-01T15:43:18.931934+00:00",
+      "business_impact": 18,
+      "feasibility": 19,
+      "data_readiness": 18,
+      "risk_compliance": 6,
+      "effort_estimate_weeks": 24,
+      "roi_projection_12mo": 0,
+      "roi_currency": "USD"
+    },
+    "documents": {
+      "prd": null,
+      "tech_spec": null,
+      "jira_ticket": null
+    },
+    "meta": {
+      "intake_complete": true,
+      "structuring_complete": true,
+      "scoring_complete": true,
+      "handoff_complete": false,
+      "tags": []
+    }
+  },
+  {
+    "id": "uc_20260401_154911_0297db21",
+    "title": "New Use Case",
+    "status": "idea",
+    "department": "",
+    "created_at": "2026-04-01T15:49:11.367938+00:00",
+    "updated_at": "2026-04-01T15:49:11.367986+00:00",
+    "intake": {
+      "chat_history": [],
       "raw_summary": ""
     },
     "structured": {
